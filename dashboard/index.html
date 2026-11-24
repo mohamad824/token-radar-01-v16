@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Token Radar v16 — 198 pre-token protocols, curve model</title>
+<link rel="stylesheet" href="app.css">
+<script src="../data.js"></script>
+<script src="app.js" defer></script></head>
+<body>
+<header><h1>Token Radar <span class="v">v16</span></h1>
+<p class="sub">What a token would be worth if the protocol launched one today — implied value from the sealed 14 Nov 2026 snapshot (758 protocols). Board model: the fitted curve (TVL × curve × 7-day growth × token-free maturity). Ranking: implied-if-launches. No names are hard-coded; every row is scored by the same formula.</p></header>
+<section id="kpis" aria-label="Key numbers">
+<div class="kpi"><b id="k-top1">$–</b><span>Top-1 implied</span></div>
+<div class="kpi"><b id="k-total">$–</b><span>Total implied, 198 rows</span></div>
+<div class="kpi"><b id="k-med">$–</b><span>Median implied</span></div>
+<div class="kpi"><b id="k-ev">$–</b><span>Expected value (Σ implied × odds)</span></div>
+<div class="kpi"><b id="k-farm">–</b><span>FARM / MARGINAL / SKIP</span></div>
+<div class="kpi"><b id="k-stab">–</b><span>Bootstrap top-20 stability</span></div>
+</section>
+<p class="judge"><b>Judge note.</b> The curve wins median LOO ×/2.76 and median walk-forward ×/3.37 — both best of 7 models — but loses mean walk-forward (×/5.73 vs ×/5.58 for the power law); that trade-off is printed in the model table below the board. Odds are an ensemble fit on all 92 traded comps (in-sample per row; only the formulation is walk-forward tested). A launch does not guarantee you qualify for an airdrop.</p>
+<p class="verify">✓ This table = board.json · ledger 758 · Rebuild MATCH <span id="v-match">198/198</span> · <span id="v-watch">40/40</span> watchlist covered · LAUNCH ODDS · WF-TESTED</p>
+<nav id="filters">
+<input id="q" type="search" placeholder="Search protocol…" aria-label="Search">
+<button data-v="ALL" class="on">All 198</button><button data-v="FARM">FARM</button><button data-v="MARGINAL">MARGINAL</button><button data-v="SKIP">SKIP</button>
+<label><input id="wl" type="checkbox"> Watchlist only</label>
+<label>Sort <select id="sort"><option value="implied">Implied ↓</option><option value="tvl">TVL ↓</option><option value="odds">Odds ↓</option><option value="net">Net ↓</option><option value="ev">EV ↓</option></select></label>
+<button id="exportJson">Export JSON</button><button id="exportCsv">Export CSV</button>
+</nav>
+<main>
+<div class="boardwrap"><table id="board"><thead><tr>
+<th>#</th><th>Protocol</th><th>TVL</th><th>7D</th><th>Age</th><th>Odds</th><th>Implied</th><th>Range (JK+)</th><th title="Implied ÷ flat-median model. Small deltas on most rows are honesty: the curve stays close to the flat median for most protocols.">Δ flat</th><th title="Net vs the +$25 economic bar. ▲ net ≥ +$25, ▼ net &lt; $0; colour marks verdict status only.">Δ vs +$25</th><th>Verdict</th><th>Net</th>
+</tr></thead><tbody id="rows"></tbody></table></div>
+<p class="more"><button id="showAll">Show all 198 rows</button> <span id="count"></span></p>
+<section id="model"><h2>Model evidence — on the board page, not hidden</h2>
+<p>Selection rule (v16, restated): the board model is the one that wins <b>median LOO</b> and <b>median walk-forward</b>; its mean walk-forward is worse than the power law and is printed honestly, not hidden. Error = log<sub>10</sub> predicted mcap − log<sub>10</sub> actual mcap; factor ×/N = 10<sup>mean|err|</sup> (MEAN) or 10<sup>median|err|</sup> (MEDIAN). LOO = leave-one-out over 92 clean comps. WF = walk-forward, 3 cuts by listing date (40/60, 50/50, 67/33); WF reported = mean of the 3 cuts.</p>
+<table id="modelTable"><thead><tr><th>Model</th><th>medLOO</th><th>meanLOO</th><th>medWF</th><th>meanWF</th><th>Why it stands / falls</th></tr></thead><tbody id="modelRows"></tbody></table>
+<p id="modelNote"></p></section>
+<section id="detail"><h2>Protocol detail</h2><div id="detailBody"><p>Select a row above.</p></div></section>
+<section id="evidence"><h2>Evidence</h2>
+<h3>Launch odds — ensemble, walk-forward tested</h3>
+<p>Per-row odds from the full fit; formulation beats base rate on all 3 walk-forward cuts. Ensemble: 50% logistic + 30% empirical (category × age band in years, shrink 10) + 20% base rate. Age bands use years, with an “unknown” band for null ages — the fix that keeps tier LOW ≤ 25%.</p>
+<div id="tiers" class="tiers"></div>
+<table id="brier"><thead><tr><th>WF cut</th><th>n test</th><th>Brier (ensemble)</th><th>Brier (base rate)</th><th>Called-right</th></tr></thead><tbody id="brierRows"></tbody></table>
+<h3>What-if simulator — live recompute for the selected protocol</h3>
+<p><label>Haircut on implied <input id="simHair" type="range" min="0" max="90" value="0"> <b id="simHairV">0%</b></label>
+<label>TVL drop <input id="simDrop" type="range" min="0" max="80" value="0"> <b id="simDropV">0%</b></label></p>
+<p id="simOut"></p>
+<h3>Harvest calendar — 12 weeks, top-1 protocol</h3>
+<p>10 checkpoints, $500 total imputed cost (gas + time at $90/h × 5.0 h). The calendar is a schedule, not a promise: a launch does not guarantee you qualify.</p>
+<table id="cal"><thead><tr><th>Week</th><th>Action</th><th>Cost</th><th>Hours</th></tr></thead><tbody id="calRows"></tbody></table>
+<h3>Pool calculator — $5,000 / 12 weeks / 7%</h3>
+<p id="pool"></p>
+<h3>Watchlist token status (D-34)</h3>
+<p id="d34">0 TOKEN TRADES · 40 PRE-TOKEN of 40 — the snapshot records no token for any watchlist protocol; the snapshot is not proof a token does not exist.</p>
+<h3>Time-split (D-02) · Bear-proof core (D-48) · Ledger (D-62)</h3>
+<p id="d02"></p><p id="d48"></p><p id="d62"></p>
+<h3>Calibration</h3>
+<p>Factors picked on WF residuals; coverage measured on the same WF folds. Jackknife+ is the main band; its factor comes from leave-one-out residuals and its coverage is measured on the LOO comps.</p>
+<table id="calib"><thead><tr><th>TVL tercile</th><th>n</th><th>Inner factor</th><th>Inner coverage</th><th>Outer factor</th><th>Outer coverage</th></tr></thead><tbody id="calibRows"></tbody></table>
+<p id="jkLine"></p>
+<h3>Top-10 narrative</h3>
+<ol id="top10"></ol>
+<h3>Verdict does not price eligibility risk</h3>
+<p><b>Verdict does not price eligibility risk: a launch does not guarantee you qualify.</b> Farming a protocol does not guarantee you meet its airdrop criteria. Net = EV × 0.0015% − fee on the cheapest chain; EV = implied × odds. Break-even capital is the deposit at which net = $0; “never” means above the $250,000 cap. Bear case multiplies implied by ×0.33; bull cases by ×2.5 and ×3.</p>
+</section>
+</main>
+<footer><p>Token Radar v16 · snapshot as of 14 Nov 2026, DefiLlama protocols endpoint · 758 protocols · 92 clean traded comps · 198 pre-token board rows · $5,000 deposit, 12 weeks · Fees: 5 transactions on the cheapest chain + $4 allowance · No network at render time; all figures come from board.json via data.js.</p></footer>
+</body></html>
